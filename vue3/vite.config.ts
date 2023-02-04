@@ -10,7 +10,7 @@ export default defineConfig({
   })],
   build: {
     lib: {
-      entry: resolve(__dirname, './src/AutoResizeTextarea/index.ts'),
+      entry: resolve(__dirname, './index.ts'),
       name: 'AutoResizeTextarea',
       fileName: 'AutoResizeTextarea'
     },

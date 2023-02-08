@@ -1,6 +1,6 @@
 <script lang="ts">
-import { defineComponent, onMounted, Ref, ref, toRefs } from "vue";
-import ProxyTextareaElement from "./ProxyTextareaElement";
+import { defineComponent, onMounted, onUpdated, Ref, ref, toRefs } from "vue";
+import ProxyTextareaElement from "shared";
 
 export default defineComponent({
   name: "AutoResizeTextarea",
@@ -31,6 +31,10 @@ export default defineComponent({
     }
 
     onMounted(() => {
+      resizeTextarea();
+    });
+
+    onUpdated(() => {
       resizeTextarea();
     });
 

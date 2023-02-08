@@ -3,10 +3,11 @@ import { onMounted, ref } from "vue";
 import AutoResizeTextarea from "vue3-autoresize-textarea";
 
 let node = ref(null);
+
 </script>
 
 <template>
-  <AutoResizeTextarea maxRows="10" minRows="3" />
+  <AutoResizeTextarea />
 </template>
 
 <style>

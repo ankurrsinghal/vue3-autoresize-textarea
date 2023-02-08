@@ -1,0 +1,24 @@
+{
+  "name": "shared",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "./index.js",
+  "module": "./index.js",
+  "files": [
+    "index.js"
+  ],
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./index.js",
+      "import": "./index.js"
+    }
+  },
+  "scripts": {
+    "build": "npx tsc index.ts --module es2015 --target es5"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

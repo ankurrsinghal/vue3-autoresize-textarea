@@ -55,6 +55,8 @@ function parseNumber(value: number | string | undefined) {
         return parsedValue;
       }
     }
+
+    if (typeof value === "number") return value;
   }
 
   return 0;
@@ -90,6 +92,14 @@ const ProxyTextareaElement: ProxyTextareaElementType = {
     // if not present
     if (_proxyTextareaElement === undefined) {
       _proxyTextareaElement = document.createElement("textarea");
+      const contextStyle = CONTEXT_STYLE.map(
+        (name) => `${name}:${styles.getPropertyValue(name)}`
+      ).join(";");
+  
+      _proxyTextareaElement.setAttribute(
+        "style",
+        `${contextStyle};${PROXY_TEXTAREA_ELEMENT_HIDDEN_STYLE}`
+      );
       if (
         _proxyTextareaElement.parentNode === null ||
         _proxyTextareaElement.parentNode !== document.body
@@ -97,15 +107,6 @@ const ProxyTextareaElement: ProxyTextareaElementType = {
         document.body.appendChild(_proxyTextareaElement);
       }
     }
-
-    const contextStyle = CONTEXT_STYLE.map(
-      (name) => `${name}:${styles.getPropertyValue(name)}`
-    ).join(";");
-
-    _proxyTextareaElement.setAttribute(
-      "style",
-      `${contextStyle};${PROXY_TEXTAREA_ELEMENT_HIDDEN_STYLE}`
-    );
   },
   updateText(text: string) {
     _proxyTextareaElement!.value = text;

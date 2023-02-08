@@ -1,14 +1,13 @@
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import AutoResizeTextarea from 'vue3-autoresize-textarea';
 
-onMounted(() => {
-    console.log("onMounted");
-});
+let node = ref(null);
+
 </script>
 
 <template>
-<AutoResizeTextarea />
+<AutoResizeTextarea v-bind="value" ref="node" title="HELLLO" />
 </template>
 
 <style>

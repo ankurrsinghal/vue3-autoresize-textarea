@@ -4,9 +4,9 @@ import {
   onMounted,
   onUpdated,
   Ref,
-  ref,
   toRefs,
   computed,
+  shallowRef,
 } from "vue";
 import ProxyTextareaElement from "shared";
 
@@ -18,7 +18,7 @@ export default defineComponent({
     maxRows: Number,
   },
   setup(props, { expose, emit }) {
-    let node: Ref<Element | null> = ref(null);
+    let node: Ref<Element | null> = shallowRef(null);
 
     function resizeTextarea() {
       if (node.value !== null) {

@@ -1,14 +1,23 @@
 <script lang="ts">
-import { defineComponent, onMounted, onUpdated, Ref, ref, toRefs } from "vue";
+import {
+  defineComponent,
+  onMounted,
+  onUpdated,
+  Ref,
+  ref,
+  toRefs,
+  computed,
+} from "vue";
 import ProxyTextareaElement from "shared";
 
 export default defineComponent({
   name: "AutoResizeTextarea",
   props: {
+    modelValue: String,
     minRows: Number,
     maxRows: Number,
   },
-  setup(props, { expose }) {
+  setup(props, { expose, emit }) {
     let node: Ref<Element | null> = ref(null);
 
     function resizeTextarea() {
@@ -38,20 +47,23 @@ export default defineComponent({
       resizeTextarea();
     });
 
-    function handleChange() {
-      resizeTextarea();
-    }
-
     expose({ node });
 
+    const value = computed({
+      get: () => props.modelValue,
+      set: (val) => {
+        emit("update:modelValue", val);
+      },
+    });
+
     return {
+      value,
       node,
-      handleChange,
     };
   },
 });
 </script>
 
 <template>
-  <textarea ref="node" @input="handleChange" />
+  <textarea ref="node" v-model="value" />
 </template>

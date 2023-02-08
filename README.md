@@ -9,16 +9,13 @@ An in-built auto-resize functionality for a textarea element using the scroll he
 ## Usage
 
 ```vue
-
-import AutoResizeTextarea from 'vue3-autoresize-textarea';
-
-
-(In your SFC)
 <template>
     <AutoResizeTextarea v-model="text" :maxRows="10" :minRows="4" />
 </template>
 
 <script setup>
+import AutoResizeTextarea from 'vue3-autoresize-textarea';
+
 const text = ref('');
 </script>
 

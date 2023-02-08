@@ -10,22 +10,25 @@ An in-built auto-resize functionality for a textarea element using the scroll he
 
 ```vue
 <template>
-    <AutoResizeTextarea v-model="text" :maxRows="10" :minRows="4" />
+  <AutoResizeTextarea
+    v-model="text"
+    :maxRows="10"
+    :minRows="4"
+  />
 </template>
 
 <script setup>
-import AutoResizeTextarea from 'vue3-autoresize-textarea';
+import AutoResizeTextarea from "vue3-autoresize-textarea";
 
-const text = ref('');
+const text = ref("");
 </script>
-
 ```
 
 ## Props
 
-| prop                | type      | description                                                                                                                                                                                                                                        |
-| ------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `maxRows`           | `number`  | Maximum number of rows up to which the textarea can grow                                                                                                                                                                                           |
-| `minRows`           | `number`  | Minimum number of rows to show for textarea                                                                                                                                                                                                        |
+| prop      | type     | description                                              |
+| --------- | -------- | -------------------------------------------------------- |
+| `maxRows` | `number` | Maximum number of rows up to which the textarea can grow |
+| `minRows` | `number` | Minimum number of rows to show for textarea              |
 
 Apart from these, the component accepts all props that are accepted by `<textarea/>`.

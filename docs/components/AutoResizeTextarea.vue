@@ -6,7 +6,7 @@ let node = ref(null);
 </script>
 
 <template>
-  <AutoResizeTextarea v-bind="value" ref="node" title="HELLLO" />
+  <AutoResizeTextarea maxRows="10" minRows="3" />
 </template>
 
 <style>

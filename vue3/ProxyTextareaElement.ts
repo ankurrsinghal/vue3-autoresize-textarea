@@ -1,7 +1,15 @@
+type Undefineable<T> = T | undefined;
+
+type SetupType = {
+  styles: CSSStyleDeclaration;
+  minRows: Undefineable<number | string>;
+  maxRows: Undefineable<number | string>;
+}
+
 type ProxyTextareaElementType = {
   updateText: (text: string) => void;
-  getScrollHeight: () => number;
-  setupFromSourceStyles: (styles: CSSStyleDeclaration) => void;
+  getComputedHeight: () => number;
+  setup: (options: SetupType) => void;
 };
 
 const PROXY_TEXTAREA_ELEMENT_HIDDEN_STYLE = `
@@ -34,19 +42,59 @@ const CONTEXT_STYLE = [
   "box-sizing",
 ];
 
-let proxyTextareaElement: HTMLTextAreaElement | undefined = undefined;
+let _proxyTextareaElement: HTMLTextAreaElement | undefined = undefined;
+let _minRows: number = 0;
+let _maxRows: number = 0;
+let _sourceStyles: Undefineable<CSSStyleDeclaration> = undefined;
+
+function parseNumber(value: number | string | undefined) {
+  if (value) {
+    if (typeof value === "string") {
+      const parsedValue = Number.parseInt(value, 10);
+      if (!Number.isNaN(value)) {
+        return parsedValue;
+      }
+    }
+  }
+
+  return 0;
+}
+
+function getSizingData(styles: CSSStyleDeclaration) {
+  const boxSizing = styles.getPropertyValue("box-sizing");
+  const paddingSize =
+    Number.parseFloat(styles.getPropertyValue("padding-bottom")) +
+    Number.parseFloat(styles.getPropertyValue("padding-top"));
+  const borderSize =
+    Number.parseFloat(styles.getPropertyValue("border-bottom-width")) +
+    Number.parseFloat(styles.getPropertyValue("border-top-width"));
+
+  return { boxSizing, paddingSize, borderSize };
+}
+
+function isBorderBox(boxSizing: string) {
+  return boxSizing === "border-box";
+}
+
+function isContentBox(boxSizing: string) {
+  return boxSizing === "content-box";
+}
 
 const ProxyTextareaElement: ProxyTextareaElementType = {
-  setupFromSourceStyles(styles: CSSStyleDeclaration) {
+  setup({ styles, maxRows, minRows }) {
+    _sourceStyles = styles;
+    _maxRows = parseNumber(maxRows);
+    _minRows = parseNumber(minRows);
+
     // setup proxy textarea element
     // if not present
-    if (proxyTextareaElement === undefined) {
-      proxyTextareaElement = document.createElement("textarea");
+    if (_proxyTextareaElement === undefined) {
+      _proxyTextareaElement = document.createElement("textarea");
       if (
-        proxyTextareaElement.parentNode === null ||
-        proxyTextareaElement.parentNode !== document.body
+        _proxyTextareaElement.parentNode === null ||
+        _proxyTextareaElement.parentNode !== document.body
       ) {
-        document.body.appendChild(proxyTextareaElement);
+        document.body.appendChild(_proxyTextareaElement);
       }
     }
 
@@ -54,16 +102,47 @@ const ProxyTextareaElement: ProxyTextareaElementType = {
       (name) => `${name}:${styles.getPropertyValue(name)}`
     ).join(";");
 
-    proxyTextareaElement.setAttribute(
+    _proxyTextareaElement.setAttribute(
       "style",
       `${contextStyle};${PROXY_TEXTAREA_ELEMENT_HIDDEN_STYLE}`
     );
   },
   updateText(text: string) {
-    proxyTextareaElement!.value = text;
+    _proxyTextareaElement!.value = text;
   },
-  getScrollHeight() {
-    return proxyTextareaElement!.scrollHeight;
+  getComputedHeight() {
+    const { boxSizing, paddingSize, borderSize } = getSizingData(_sourceStyles!);
+    let finalHeight = _proxyTextareaElement!.scrollHeight;
+
+    if (isBorderBox(boxSizing)) {
+      finalHeight += borderSize;
+    } else if (isContentBox(boxSizing)) {
+      finalHeight -= paddingSize;
+    }
+
+    if (_maxRows !== 0 || _minRows !== 0) {
+      _proxyTextareaElement!.value = "";
+      const singleRowHeight = _proxyTextareaElement!.scrollHeight - paddingSize;
+      if (_minRows !== 0) {
+        let minHeight = singleRowHeight * _minRows;
+        if (isBorderBox(boxSizing)) {
+          minHeight += paddingSize + borderSize;
+        }
+
+        finalHeight = Math.max(finalHeight, minHeight);
+      }
+
+      if (_maxRows !== 0) {
+        let maxHeight = singleRowHeight * _maxRows;
+        if (isBorderBox(boxSizing)) {
+          maxHeight += paddingSize + borderSize;
+        }
+
+        finalHeight = Math.min(finalHeight, maxHeight);
+      }
+    }
+
+    return finalHeight;
   },
 };
 

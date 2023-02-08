@@ -1,44 +1,41 @@
 <script lang="ts">
-import { defineComponent, onMounted, Ref, ref } from "vue";
+import { defineComponent, onMounted, Ref, ref, toRefs } from "vue";
 import ProxyTextareaElement from "./ProxyTextareaElement";
-
-function getSizingData(styles: CSSStyleDeclaration) {
-  const boxSizing = styles.getPropertyValue("box-sizing");
-  const paddingSize =
-    Number.parseFloat(styles.getPropertyValue("padding-bottom")) +
-    Number.parseFloat(styles.getPropertyValue("padding-top"));
-  const borderSize =
-    Number.parseFloat(styles.getPropertyValue("border-bottom-width")) +
-    Number.parseFloat(styles.getPropertyValue("border-top-width"));
-
-  return { boxSizing, paddingSize, borderSize };
-}
 
 export default defineComponent({
   name: "AutoResizeTextarea",
+  props: {
+    minRows: Number,
+    maxRows: Number,
+  },
   setup(props, { expose }) {
     let node: Ref<Element | null> = ref(null);
 
-    function handleChange(e: Event) {
-      const node = e.target as HTMLTextAreaElement;
+    function resizeTextarea() {
+      if (node.value !== null) {
+        const element = node.value as HTMLTextAreaElement;
+        const sourceStyles = getComputedStyle(element);
+        const { maxRows, minRows } = toRefs(props);
+        ProxyTextareaElement.setup({
+          styles: sourceStyles,
+          maxRows: maxRows.value,
+          minRows: minRows.value,
+        });
+        ProxyTextareaElement.updateText(element.value);
 
-      const sourceStyles = getComputedStyle(node);
-
-      ProxyTextareaElement.setupFromSourceStyles(sourceStyles);
-      ProxyTextareaElement.updateText(node.value);
-
-      const { boxSizing, paddingSize, borderSize } =
-        getSizingData(sourceStyles);
-
-      let finalHeight = ProxyTextareaElement.getScrollHeight();
-
-      if (boxSizing === "border-box") {
-        finalHeight += borderSize;
-      } else if (boxSizing === "content-box") {
-        finalHeight -= paddingSize;
+        element.style.setProperty(
+          "height",
+          ProxyTextareaElement.getComputedHeight() + "px"
+        );
       }
+    }
 
-      node.style.setProperty("height", finalHeight + "px");
+    onMounted(() => {
+      resizeTextarea();
+    });
+
+    function handleChange() {
+      resizeTextarea();
     }
 
     expose({ node });
